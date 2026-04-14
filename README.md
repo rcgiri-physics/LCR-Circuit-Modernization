@@ -36,6 +36,7 @@ This project utilizes the 4th-Order Runge-Kutta (RK4) algorithm, which provides 
 - Critically Damped: The fastest return to steady state without oscillation.
 
 ## Validation & Verification (V2 Python Engine)
+
 A critical part of this modernization is proving the mathematical exactness of the new Python architecture.
 
 ### 1. SciPy Ground-Truth Validation
@@ -57,6 +58,21 @@ The outputs of the V2 Python engine were overlaid with the raw data (`.dat`) fro
 By leveraging NumPy arrays, the V2 engine processes the Underdamped ($10 \Omega$), Critically Damped ($40 \Omega$), and Overdamped ($60 \Omega$) states simultaneously, eliminating the need for iterative loops.
 
 ![Vectorized Sweep Plot](v2_modern_python/plots/vectorized_sweep_plot.png)
+
+## Performance Auditing (Fortran vs. Python)
+
+A core objective of this project was measuring the computational overhead of migrating from a compiled language (Fortran) to an interpreted language (Python).
+
+A stress-test benchmark was conducted evaluating the Underdamped LCR state over $N = 1,000,000$ integration steps on the same hardware.
+
+| Engine | Language | N-Steps | Execution Time (s) | Relative Speed |
+| :--- | :--- | :--- | :--- | :--- |
+| **V1 Legacy Engine** | Fortran 90 | $10^6$ | 0.29 s | **1.0x (Baseline)** |
+| **V2 Vectorized Engine** | Python 3 | $10^6$ | 78.77 s | ~269x slower |
+
+**Conclusion:** Differential equation solvers (like RK4) are inherently sequential, meaning step $i+1$ strictly depends on step $i$. This prevents time-domain vectorization. Consequently, Python is forced to execute 1,000,000 interpreted `for` loops. The overhead of the Python interpreter results in the engine running roughly 269x slower than the pre-compiled Fortran executable.
+
+*Future Optimization:* To bridge this gap in Python, Just-In-Time (JIT) compilers like `Numba` or `Cython` are required to bypass the interpreter loop overhead.
 
 ## Repository Structure
 
@@ -86,7 +102,7 @@ A modular, high-performance refactor containing:
 
 - [x] Vectorized Solvers: Re-implementing the RK4 engine using NumPy for multi-parameter sweeps.
 
-- [ ] Performance Auditing: Measuring the runtime overhead of Python vs. Fortran for large-scale simulations ($N > 10^6$ steps).
+- [x] Performance Auditing: Measuring the runtime overhead of Python vs. Fortran for large-scale simulations ($N > 10^6$ steps).
 
 - [ ] Phase Space Analysis: Visualizing energy dissipation ($q$ vs. $i$) and attractor stability in complex damping scenarios.
 
