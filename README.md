@@ -19,9 +19,9 @@ $$L\frac{d^2q}{dt^2} + R\frac{dq}{dt} + \frac{1}{C}q = V_0\sin(\omega t)$$
 
 In this project, the 2nd-order ODE is decomposed into a system of two coupled 1st-order equations to allow for high-precision integration via the RK4 algorithm.
 
- $\frac{dq}{dt} = i$
+ $$\frac{dq}{dt} = i$$
 
- $\frac{di}{dt} = \frac{1}{L} \left( V_0\sin(\omega t) - Ri - \frac{q}{C} \right)$
+ $$\frac{di}{dt} = \frac{1}{L} \left( V_0\sin(\omega t) - Ri - \frac{q}{C} \right)$$
 
 This method captures transient responses and steady-state resonance with a validated accuracy of $10^{-6}$.
 
@@ -74,9 +74,27 @@ A stress-test benchmark was conducted evaluating the Underdamped LCR state over 
 
 *Future Optimization:* To bridge this gap in Python, Just-In-Time (JIT) compilers like `Numba` or `Cython` are required to bypass the interpreter loop overhead.
 
+## Phase Space Analysis (Attractor Dynamics)
+
+To visualize the energy dissipation and stability of the system, a Phase Space topological map was generated, plotting the state variable (Current, $i$) against its momentum ($di/dt$).
+
+![Phase Space Plot](v2_modern_python/plots/phase_space_plot.png)
+*Figure 4: Phase Space trajectories. The system begins at the initial state and spirals inward as transient energy dissipates, eventually locking into a stable, elliptical Limit Cycle Attractor driven by the AC source.*
+
+### Physical Insights from the Phase Space Topology:
+
+- **The Boundary Condition:** All simulations trace back to the exact coordinate $(0, 0.2)$, proving the mathematical superposition of the initial natural and forced states.
+
+- **Transient Energy Dissipation:** The wild, crossing spirals seen in the Underdamped ($10 \Omega$) trace represent the "fight" between the circuit's natural resonant frequency and the driving AC frequency ($\omega$).
+
+- **The Limit Cycle Attractor:** As the resistor burns off the transient energy, the AC source perfectly balances the loss. The system gets trapped in a stable, repeating elliptical orbit. (Plotting a steady-state sine wave against its cosine derivative mathematically generates this perfect ellipse).
+
+- **Impact of Damping:** The Overdamped ($60 \Omega$) and Critically Damped ($40 \Omega$) states aggressively choke the energy flow, bypassing the chaotic transient spirals and dropping almost immediately into a much smaller, lower-energy limit cycle.
+
 ## Repository Structure
 
-`v1_legacy_fortran/`
+### `v1_legacy_fortran/`
+
 Contains the original research artifacts from the 2023 dissertation:
 
 - Source Code: Procedural Fortran 90 implementations of the RK4 solver.
@@ -85,7 +103,8 @@ Contains the original research artifacts from the 2023 dissertation:
 
 - Documentation: The original unpublished dissertation PDF.
 
-`v2_modern_python/` (Current Milestone)
+### `v2_modern_python/`
+
 A modular, high-performance refactor containing:
 
 - `lcr_engine.py`: The core vectorized RK4 mathematical solver.
@@ -104,7 +123,7 @@ A modular, high-performance refactor containing:
 
 - [x] Performance Auditing: Measuring the runtime overhead of Python vs. Fortran for large-scale simulations ($N > 10^6$ steps).
 
-- [ ] Phase Space Analysis: Visualizing energy dissipation ($q$ vs. $i$) and attractor stability in complex damping scenarios.
+- [x] Phase Space Analysis: Visualizing energy dissipation ($q$ vs. $i$) and attractor stability in complex damping scenarios.
 
 ## How to Use
 
